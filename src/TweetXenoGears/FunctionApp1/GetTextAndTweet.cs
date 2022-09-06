@@ -33,20 +33,19 @@ namespace XenoGearsByTweet
                 throw;
             }
 
-            //var line = GetNextLine(nextLineIndex);
-
             log.LogDebug($"C# Timer trigger function executed at: {DateTime.Now}");
         }
 
         private async Task<string> GetNextLineAsync(int index)
         {
-            using var sqlite2 = new SQLiteConnection($"Data Source={DatabaseName}");
+            using var db = new SQLiteConnection($"Data Source={DatabaseName}");
 
-            sqlite2.Open();
+            db.Open();
             
-            string sql = $"Select line from script where number = {index}";
+            string sql = "SELECT line FROM script WHERE number = @index";
             
-            SQLiteCommand command = new(sql, sqlite2);
+            SQLiteCommand command = new(sql, db);
+            command.Parameters.AddWithValue("index", index);
 
             return Convert.ToString(await command.ExecuteScalarAsync());
         }
