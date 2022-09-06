@@ -1,18 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 
 namespace XenoGearsByTweet
 {
@@ -31,7 +25,8 @@ namespace XenoGearsByTweet
                 await CreateDatabase();
 
                 string line = await GetNextLineAsync(nextLineIndex);
-                Console.WriteLine(line);
+                nextLineIndex++;
+                log.LogWarning(line);
             }
             catch (Exception ex)
             {
@@ -40,7 +35,7 @@ namespace XenoGearsByTweet
 
             //var line = GetNextLine(nextLineIndex);
 
-            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            log.LogDebug($"C# Timer trigger function executed at: {DateTime.Now}");
         }
 
         private async Task<string> GetNextLineAsync(int index)
@@ -69,25 +64,23 @@ namespace XenoGearsByTweet
                 string sql = "create table script (line varchar(8000), number int)";
                 SQLiteCommand command = new(sql, sqlite2);
                 command.ExecuteNonQuery();
+               
 
                 var assembly = Assembly.GetExecutingAssembly();
-
                 string resourceName = assembly.GetManifestResourceNames()
-                 .Single(str => str.EndsWith("xenogears-disc1.txt"));
+                    .Single(str => str.EndsWith("xenogears-disc1.txt"));
 
-                using Stream stream = Assembly.GetEntryAssembly()
-                    .GetManifestResourceStream(resourceName);
-
+                using Stream stream = assembly.GetManifestResourceStream(resourceName);
                 using StreamReader reader = new(stream);
                 var count = 0;
                 while (!reader.EndOfStream)
                 {
-                    string insertQuery = $"insert into script values ('{await reader.ReadLineAsync()}', {count})";
-                    SQLiteCommand command2 = new SQLiteCommand(insertQuery, sqlite2);
+                    var line = await reader.ReadLineAsync();
+                    string insertQuery = $"insert into script values ('{line}', {count})";
+                    count++;
+                    SQLiteCommand command2 = new(insertQuery, sqlite2);
                     command2.ExecuteNonQuery();
                 }
-
-
             }
         }
     }
