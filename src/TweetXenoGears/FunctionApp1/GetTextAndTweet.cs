@@ -11,8 +11,10 @@ using Microsoft.Extensions.Logging;
 namespace XenoGearsByTweet
 {
     public class GetTextAndTweet
-    { 
+    {
         private const string DatabaseName = "xeno.sqlite";
+        private const string Insertcommand = "insert into script values (@line, @count)";
+        private const string CreateTableCommand = "create table script (line varchar(8000), number int)";
         private static int nextLineIndex = 0;
 
         [FunctionName("TweetXenoGears")]
@@ -20,9 +22,8 @@ namespace XenoGearsByTweet
         {
             try
             {
-                if (!File.Exists(DatabaseName))                
+                if (!File.Exists(DatabaseName))
                     await CreateDatabase();
-                
 
                 string line = await GetNextLineAsync(nextLineIndex);
 
@@ -69,14 +70,26 @@ namespace XenoGearsByTweet
             using Stream stream = assembly.GetManifestResourceStream(resourceName);
             using StreamReader reader = new(stream);
             var count = 0;
+
             while (!reader.EndOfStream)
             {
-                var line = await reader.ReadLineAsync();
-                string insertQuery = $"insert into script values ('{line}', {count})";
-                count++;
+                try
+                {
+                    var line = await reader.ReadLineAsync();
+                    string insertQuery = Insertcommand;
 
-                SQLiteCommand command2 = new(insertQuery, db);
-                command2.ExecuteNonQuery();
+                    SQLiteCommand command2 = new(insertQuery, db);
+                    command2.Parameters.AddWithValue("line", line);
+                    command2.Parameters.AddWithValue("count", count);
+                    command2.ExecuteNonQuery();
+
+                    count++;
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+
             }
         }
 
@@ -87,7 +100,7 @@ namespace XenoGearsByTweet
             var db = new SQLiteConnection($"Data Source={DatabaseName}");
             db.Open();
 
-            string sql = "create table script (line varchar(8000), number int)";
+            string sql = CreateTableCommand;
 
             SQLiteCommand command = new(sql, db);
 
