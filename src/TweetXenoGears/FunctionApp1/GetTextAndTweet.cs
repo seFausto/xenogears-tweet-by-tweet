@@ -35,13 +35,13 @@ namespace XenoGearsByTweet
                 if (!File.Exists(DatabaseName))
                     await CreateDatabase();
 
-                log.LogInformation("Getting index at {Timer}", myTimer);
+                log.LogInformation("Getting index}");
                 int nextLineIndex = await GetNextLineIndexAsync(log);
 
-                log.LogInformation("Getting next line with index {Index} at {Timer}", nextLineIndex, myTimer);
+                log.LogInformation("Getting next line with index {Index}", nextLineIndex);
                 string line = await GetNextLineAsync(nextLineIndex);
 
-                log.LogInformation("Tweeting line #{Index}: {Line} at {Timer}", nextLineIndex, line, myTimer);
+                log.LogInformation("Tweeting line #{Index}: {Line}", nextLineIndex, line);
                 var twitterBusiness = new TwitterBusiness();
 
                 await twitterBusiness.TweetStringList(line);
