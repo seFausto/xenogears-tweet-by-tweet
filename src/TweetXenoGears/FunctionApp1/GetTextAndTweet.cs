@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
+using FunctionApp1;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
@@ -21,18 +22,20 @@ namespace XenoGearsByTweet
         [FunctionName("TweetXenoGears")]
         public static async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            string line = string.Empty;
-
             try
             {
                 if (!File.Exists(DatabaseName))
                     await CreateDatabase();
 
                 int nextLineIndex = await GetNextLineIndexAsync();
-
+                log.LogInformation("Getting next line with index {Index}", nextLineIndex);
+                string line = string.Empty;
                 line = await GetNextLineAsync(nextLineIndex);
 
                 log.LogInformation("Tweeting line #{Index}: {Line}", nextLineIndex, line);
+                var twitterBusiness = new TwitterBusiness();
+
+                await twitterBusiness.TweetStringList(line);
 
             }
             catch (Exception ex)

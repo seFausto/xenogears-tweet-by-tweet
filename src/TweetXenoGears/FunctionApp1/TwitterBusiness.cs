@@ -34,18 +34,12 @@ namespace FunctionApp1
             };
         }
 
-        public async Task TweetStringList(Tweetinvi.Models.ITweet tweet, string message)
+        public async Task TweetStringList(string message)
         {
             var userClient = GetTwitterClient();
             try
             {
-                // Log.Information("Quoting Tweet {TweetId} from {ScreenName}: {Message}", tweet.Id,
-                //    tweet.CreatedBy.ScreenName, message);
-
-                _ = await userClient.Tweets.PublishTweetAsync(new PublishTweetParameters(message)
-                {
-                    QuotedTweet = tweet
-                });
+                _ = await userClient.Tweets.PublishTweetAsync(message);
             }
             catch (Exception ex)
             {
