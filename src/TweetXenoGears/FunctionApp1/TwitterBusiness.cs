@@ -41,9 +41,8 @@ namespace FunctionApp1
             {
                 _ = await userClient.Tweets.PublishTweetAsync(message);
             }
-            catch (Exception ex)
-            {
-                // Log.Error(ex, "Error quoting tweet {TweetId}", tweet.Id);
+            catch (Exception)
+            {   
                 throw;
             }
         }
