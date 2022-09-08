@@ -107,13 +107,12 @@ namespace XenoGearsByTweet
             try
             {
 
-                string insertQuery = "insert into IndexTable values (0);";
+                string insertQuery = "insert into IndexTable (number) values (0);";
 
                 await db.OpenAsync();
 
                 SQLiteCommand command2 = new(insertQuery, db);
-
-
+                await command2.ExecuteNonQueryAsync();
                 await db.CloseAsync();
 
             }
