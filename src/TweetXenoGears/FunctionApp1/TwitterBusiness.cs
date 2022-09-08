@@ -34,7 +34,7 @@ namespace FunctionApp1
             };
         }
 
-        public async Task TweetStringList(string message)
+        public async Task TweetString(string message)
         {
             var userClient = GetTwitterClient();
             try

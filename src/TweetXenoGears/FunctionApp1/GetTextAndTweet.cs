@@ -33,7 +33,10 @@ namespace XenoGearsByTweet
             try
             {
                 if (!File.Exists(DatabaseName))
-                    await CreateDatabase();
+                {
+                    log.LogError("No database was found on path {Path}", DatabaseName);
+                    throw new FileNotFoundException("No Sqlite db found");
+                } 
 
                 log.LogInformation("Getting index}");
                 int nextLineIndex = await GetNextLineIndexAsync(log);
@@ -44,11 +47,11 @@ namespace XenoGearsByTweet
                 log.LogInformation("Tweeting line #{Index}: {Line}", nextLineIndex, line);
                 var twitterBusiness = new TwitterBusiness();
 
-                await twitterBusiness.TweetStringList(line);
+                await twitterBusiness.TweetString(line);
             }
             catch (Exception ex)
             {
-                log.LogWarning(ex, "Warning thrown");
+                log.LogError(ex, "Warning thrown");
             }
         }
 
