@@ -26,7 +26,7 @@ namespace XenoGearsByTweet
 
 
         [FunctionName("TweetXenoGears")]
-        public static async Task Run([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer, 
+        public static async Task Run([TimerTrigger("0 0/10 06-22 * * ?")] TimerInfo myTimer, 
             ILogger log)
         {
             DatabaseName = Environment.GetEnvironmentVariable("DatabasePath");
