@@ -26,18 +26,19 @@ namespace XenoGearsByTweet
 
 
         [FunctionName("TweetXenoGears")]
-        public static async Task Run([TimerTrigger("0 */20 * * * *")] TimerInfo myTimer, 
+        public static async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer,
             ILogger log)
         {
             DatabaseName = Environment.GetEnvironmentVariable("DatabasePath");
 
+
             try
-            {
+            {   
                 if (!File.Exists(DatabaseName))
                 {
                     log.LogError("No database was found on path {Path}", DatabaseName);
                     throw new FileNotFoundException("No Sqlite db found");
-                } 
+                }
 
                 log.LogInformation("Getting index");
                 int nextLineIndex = await GetNextLineIndexAsync(log);
@@ -52,7 +53,7 @@ namespace XenoGearsByTweet
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "Warning thrown");
+                log.LogError(ex, "Exception thrown");
             }
         }
 
@@ -102,7 +103,7 @@ namespace XenoGearsByTweet
 
                 await InsertScriptTable(db);
 
-                await InsertIndexTable(db);
+                //await InsertIndexTable(db);
             }
             catch (Exception)
             {
@@ -135,11 +136,11 @@ namespace XenoGearsByTweet
             var assembly = Assembly.GetExecutingAssembly();
 
             string resourceName = assembly.GetManifestResourceNames()
-                .Single(str => str.EndsWith("xenogears-disc1.txt"));
+                .Single(str => str.EndsWith("xenogears-disc2.txt"));
 
             using Stream stream = assembly.GetManifestResourceStream(resourceName);
             using StreamReader reader = new(stream);
-            var count = 0;
+            var lineCount = 7309;
 
             while (!reader.EndOfStream)
             {
@@ -151,9 +152,9 @@ namespace XenoGearsByTweet
 
                     SQLiteCommand command2 = new(insertQuery, db);
                     command2.Parameters.AddWithValue("line", line);
-                    command2.Parameters.AddWithValue("count", count);
+                    command2.Parameters.AddWithValue("count", lineCount);
                     command2.ExecuteNonQuery();
-                    count++;
+                    lineCount++;
 
                     await db.CloseAsync();
                 }
@@ -168,11 +169,13 @@ namespace XenoGearsByTweet
         private static async Task<SQLiteConnection> CreateAndGetDb()
         {
 
-            SQLiteConnection.CreateFile(DatabaseName);
+            // SQLiteConnection.CreateFile(DatabaseName);
 
             var db = new SQLiteConnection($"Data Source={DatabaseName}");
-            await db.OpenAsync();
 
+            return db;
+
+            await db.OpenAsync();
             SQLiteCommand command = new(CreateTableCommand, db);
 
             await command.ExecuteNonQueryAsync();
